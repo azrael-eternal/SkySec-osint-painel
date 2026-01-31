@@ -1,0 +1,56 @@
+# ===============================
+# Core
+# ===============================
+requests
+beautifulsoup4
+colorama
+alive-progress
+
+# ===============================
+# Metadata Analyzer
+# ===============================
+pillow
+exifread
+
+# ===============================
+# Blackbird
+# ===============================
+httpagentparser
+lxml
+
+# ===============================
+# SpiderFoot (dependências reais)
+# ===============================
+pyyaml
+ipaddr
+pygexf
+python-whois
+python-docx
+dnspython
+pyopenssl
+cryptography
+aiohttp
+aiohttp-socks
+cherrypy
+networkx
+future
+html5lib
+lxml
+mock
+multidict
+platformdirs
+attrs
+certifi
+idna
+chardet
+cloudscraper
+flask
+flask[async]
+async-timeout
+arabic-reshaper
+python-bidi
+
+# ===============================
+# Output / parsing helpers
+# ===============================
+pycountry
