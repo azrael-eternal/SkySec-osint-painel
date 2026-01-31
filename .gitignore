@@ -1,0 +1,4 @@
+osint_tools/
+venv/
+__pycache__/
+*.pyc
