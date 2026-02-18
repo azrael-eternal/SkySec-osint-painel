@@ -113,7 +113,7 @@ libxslt \
 rust
 
 4️⃣ Clonar o SkySec
-git clone https://github.com/seu-usuario/skySec.git
+git clone https://github.com/noirscarletbond-ux/SkySec-osint-painel.git 
 cd skySec
 
 5️⃣ Criar e ativar virtualenv (opcional, mas recomendado)
@@ -162,3 +162,5 @@ testes em seus próprios dados
 auditorias com autorização explícita
 
 laboratórios, CTFs e ambientes de estudo
+
+
