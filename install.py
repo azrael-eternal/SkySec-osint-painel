@@ -1,3 +1,4 @@
+
 import os
 import subprocess
 import sys
@@ -5,63 +6,64 @@ import sys
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 TOOLS_DIR = os.path.join(BASE_DIR, "osint_tools")
 
-BLACKBIRD_REPO = "https://github.com/p1ngul1n0/blackbird.git"
-SPIDERFOOT_REPO = "https://github.com/smicallef/spiderfoot.git"
+REPOS = {
+    "blackbird": "https://github.com/p1ngul1n0/blackbird.git",
+    "spiderfoot": "https://github.com/smicallef/spiderfoot.git"
+}
 
 def run(cmd, cwd=None):
     try:
-        subprocess.run(cmd, check=True, cwd=cwd)
-    except subprocess.CalledProcessError:
-        print(f"[!] Erro ao executar: {' '.join(cmd)}")
-        sys.exit(1)
+        subprocess.run(cmd, check=True, cwd=cwd, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
+    except subprocess.CalledProcessError as e:
+        print(f"[!] Erro ao executar {' '.join(cmd)}: {e.stderr.decode().strip()}")
+        return False
+    return True
 
 def ensure_dirs():
     for d in ["osint_tools", "data", "logs"]:
-        path = os.path.join(BASE_DIR, d)
-        os.makedirs(path, exist_ok=True)
+        os.makedirs(os.path.join(BASE_DIR, d), exist_ok=True)
 
 def check_system_tool(tool):
-    if subprocess.call(["which", tool], stdout=subprocess.DEVNULL) != 0:
-        print(f"[!] {tool} não encontrado no sistema.")
-    else:
-        print(f"[+] {tool} OK")
+    is_installed = subprocess.call(["which", tool], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL) == 0
+    status = "OK" if is_installed else "NAO ENCONTRADO"
+    print(f"{tool.ljust(10)} : {status}")
 
-def install_requirements():
-    print("[*] Instalando dependências Python...")
-    run([sys.executable, "-m", "pip", "install", "--upgrade", "pip"])
-    run([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"])
-
-def clone_blackbird():
-    path = os.path.join(TOOLS_DIR, "blackbird")
-    if not os.path.exists(path):
-        print("[*] Clonando Blackbird...")
-        run(["git", "clone", BLACKBIRD_REPO, path])
-    else:
-        print("[+] Blackbird já existe")
-
-def clone_spiderfoot():
-    path = os.path.join(TOOLS_DIR, "spiderfoot")
-    if not os.path.exists(path):
-        print("[*] Clonando SpiderFoot...")
-        run(["git", "clone", SPIDERFOOT_REPO, path])
-    else:
-        print("[+] SpiderFoot já existe")
+def setup_tools():
+    for name, url in REPOS.items():
+        path = os.path.join(TOOLS_DIR, name)
+        if not os.path.exists(path):
+            print(f"Instalando {name}...")
+            run(["git", "clone", url, path])
+            
+            # Instala requirements especificos da ferramenta clonada
+            req_path = os.path.join(path, "requirements.txt")
+            if os.path.exists(req_path):
+                run([sys.executable, "-m", "pip", "install", "-r", req_path])
+        else:
+            print(f"{name.ljust(10)} : INSTALADO")
 
 def main():
-    print("=== SkySec Installer ===")
+    print("SKYSEC INSTALLER\n")
 
     ensure_dirs()
-    install_requirements()
+    
+    print("Verificando pacotes Python...")
+    run([sys.executable, "-m", "pip", "install", "--upgrade", "pip"])
+    if os.path.exists("requirements.txt"):
+        run([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"])
 
-    clone_blackbird()
-    clone_spiderfoot()
+    print("Configurando ferramentas OSINT...")
+    setup_tools()
 
-    print("\n[*] Verificando ferramentas do sistema:")
+    print("\nVerificando ferramentas de sistema:")
     check_system_tool("nmap")
     check_system_tool("amass")
 
-    print("\n[✓] Instalação concluída!")
-    print("Ative a venv e rode: python skysec.py")
+    print("\nProcesso concluido.")
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("\nInstalacao cancelada.")
+        sys.exit(1)
